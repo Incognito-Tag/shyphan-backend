@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
-const userSchema = require('../schema/users');
+const userSchema = require("../schema/users");
 
 const mongoURLString = process.env.DATABASE_URL;
 mongoose.connect(mongoURLString);
@@ -28,6 +28,17 @@ router.post("/addUser", (req, res) => {
     .catch((error) => {
       console.error("Failed to save user:", error);
       res.status(500).json({ error: "Failed to add user" });
+    });
+});
+
+router.get("/getUsers", (req, res) => {
+  User.find()
+    .then((users) => {
+      res.json(users);
+    })
+    .catch((error) => {
+      console.error("Failed to get users:", error);
+      res.status(500).json({ error: "Failed to get users" });
     });
 });
 
