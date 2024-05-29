@@ -1,16 +1,14 @@
 const express = require("express");
 const multer = require("multer");
-const fs = require('fs');
-const csv = require('csv-parser');
+const csv = require("csv-parser");
 const xlsx = require("xlsx");
+const { Readable } = require("stream");
 
 const router = express.Router();
 
-// Configure multer for file upload
-const upload = multer({ dest: "uploads/" });
+const upload = multer();
 
-// Endpoint to handle file upload and return JSON
-router.post("/uploadCSVorExcel", upload.single("file"), (req, res) => {
+router.post("/upload", upload.single("file"), (req, res) => {
   const file = req.file;
 
   if (!file) {
@@ -20,35 +18,37 @@ router.post("/uploadCSVorExcel", upload.single("file"), (req, res) => {
   const fileExtension = file.originalname.split(".").pop().toLowerCase();
 
   if (fileExtension === "csv") {
-    // Process CSV file
     const results = [];
 
-    fs.createReadStream(file.path)
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    stream
       .pipe(csv())
       .on("data", (data) => {
         results.push({
-          name: data.name,
-          mobileNo: data.mobileNo,
-          email: data.email,
-          propertyType: data.propertyType,
-          leadSource: data.leadSource,
+          name: data["Name"],
+          mobileNo: data["Mobile No"],
+          email: data["Email"],
+          propertyType: data["Property Type"],
+          leadSource: data["Lead Source"],
         });
       })
       .on("end", () => {
         res.json(results);
       });
   } else if (fileExtension === "xlsx") {
-    // Process Excel file
-    const workbook = xlsx.readFile(file.path);
+    const workbook = xlsx.read(file.buffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const data = xlsx.utils.sheet_to_json(sheet);
 
     const results = data.map((row) => ({
-      name: row.name,
-      mobileNo: row.mobileNo,
-      email: row.email,
-      propertyType: row.propertyType,
-      leadSource: row.leadSource,
+      name: row["Name"],
+      mobileNo: row["Mobile No"],
+      email: row["Email"],
+      propertyType: row["Property Type"],
+      leadSource: row["Lead Source"],
     }));
 
     res.json(results);
