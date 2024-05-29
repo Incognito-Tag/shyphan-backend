@@ -4,6 +4,7 @@ const csv = require("csv-parser");
 const xlsx = require("xlsx");
 const router = express.Router();
 const mongoose = require("mongoose");
+const leadSchema = require("../schema/leads");
 const { Readable } = require("stream");
 
 const upload = multer();
@@ -15,18 +16,9 @@ router.post("/upload", upload.single("file"), (req, res) => {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
-  const leadSchema = new mongoose.Schema({
-    name: String,
-    mobileNo: String,
-    email: String,
-    propertyType: String,
-    leadSource: String,
-  });
-
   const mongoURLString = process.env.DATABASE_URL;
   mongoose.connect(mongoURLString);
 
-  // Create a model based on the schema
   const Lead = mongoose.model("Lead", leadSchema);
 
   const fileExtension = file.originalname.split(".").pop().toLowerCase();

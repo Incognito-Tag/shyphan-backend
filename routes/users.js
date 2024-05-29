@@ -1,21 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const userSchema = require('../schema/users');
 
 const mongoURLString = process.env.DATABASE_URL;
 mongoose.connect(mongoURLString);
-
-const userSchema = new mongoose.Schema({
-  name: String,
-  mobileNo: String,
-  email: String,
-  employeeCode: String,
-  isActive: Boolean,
-  joiningDate: {
-    type: Date,
-    default: Date.now,
-  },
-});
 
 const User = mongoose.model("User", userSchema);
 
