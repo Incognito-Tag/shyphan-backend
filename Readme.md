@@ -1,1 +1,1 @@
-shyphan-backend
+Backend for Shyphan project
