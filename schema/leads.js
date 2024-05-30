@@ -19,11 +19,9 @@ const leadSchema = new mongoose.Schema({
 
   propertyType: {
     type: String,
-    enum: ["Apartment", "House", "Land", "Commercial"],
   },
   leadSource: {
     type: String,
-    enum: ["Website", "Referral", "Advertisement", "Other"],
   },
 
   createdAt: {
