@@ -4,7 +4,6 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    
   },
   mobileNo: {
     type: String,
@@ -20,6 +19,15 @@ const userSchema = new mongoose.Schema({
   employeeCode: {
     type: String,
     unique: true,
+  },
+  status: {
+    type: String,
+    enum: ["active", "inactive", "suspended"],
+    default: "active",
+  },
+  joiningDate: {
+    type: Date,
+    required: true,
   },
   isActive: {
     type: Boolean,

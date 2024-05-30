@@ -9,14 +9,15 @@ mongoose.connect(mongoURLString);
 const User = mongoose.model("User", userSchema);
 
 router.post("/addUser", (req, res) => {
-  const { name, mobileNo, email, employeeCode, isActive } = req.body;
+  const { name, mobileNo, email, employeeCode, status, joiningDate } = req.body;
 
   const user = new User({
     name,
     mobileNo,
     email,
     employeeCode,
-    isActive,
+    status,
+    joiningDate,
   });
 
   user
