@@ -1,12 +1,10 @@
 const express = require("express");
 const multer = require("multer");
-const csv = require("csv-parser");
-const xlsx = require("xlsx");
-const router = express.Router();
+const { readXlsxFile } = require("read-excel-file");
 const mongoose = require("mongoose");
 const leadSchema = require("../schema/leads");
-const { Readable } = require("stream");
 
+const router = express.Router();
 const upload = multer();
 
 router.post("/upload", upload.single("file"), (req, res) => {
@@ -52,27 +50,27 @@ router.post("/upload", upload.single("file"), (req, res) => {
         return res.json(results);
       });
   } else if (fileExtension === "xlsx") {
-    const workbook = xlsx.read(file.buffer, { type: "buffer" });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const data = xlsx.utils.sheet_to_json(sheet);
+    readXlsxFile(file.buffer).then((rows) => {
+      const results = rows.map((row) => ({
+        name: row["Name"],
+        mobileNo: row["Mobile No"],
+        email: row["Email"],
+        propertyType: row["Property Type"],
+        leadSource: row["Lead Source"],
+      }));
 
-    const results = data.map((row) => ({
-      name: row["Name"],
-      mobileNo: row["Mobile No"],
-      email: row["Email"],
-      propertyType: row["Property Type"],
-      leadSource: row["Lead Source"],
-    }));
+      // Save to MongoDB
+      const Lead = mongoose.model("Lead", leadSchema);
+      Lead.insertMany(results)
+        .then(() => {
+          console.log("Leads saved successfully");
+        })
+        .catch((error) => {
+          console.error("Failed to save leads:", error);
+        });
 
-    Lead.insertMany(finalRes)
-      .then(() => {
-        console.log("Leads saved successfully");
-      })
-      .catch((error) => {
-        console.error("Failed to save leads:", error);
-      });
-
-    return res.json(results);
+      return res.json(results);
+    });
   } else {
     return res.status(400).json({
       error: "Invalid file format. Only CSV and Excel files are supported.",
