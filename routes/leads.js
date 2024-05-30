@@ -3,6 +3,8 @@ const multer = require("multer");
 const { readXlsxFile } = require("read-excel-file");
 const mongoose = require("mongoose");
 const leadSchema = require("../schema/leads");
+const csv = require("csv-parser");
+const { Readable } = require("stream");
 
 const router = express.Router();
 const upload = multer();
@@ -59,7 +61,6 @@ router.post("/upload", upload.single("file"), (req, res) => {
         leadSource: row["Lead Source"],
       }));
 
-      // Save to MongoDB
       const Lead = mongoose.model("Lead", leadSchema);
       Lead.insertMany(results)
         .then(() => {
