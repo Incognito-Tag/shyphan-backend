@@ -5,9 +5,13 @@ const mongoose = require("mongoose");
 const leadSchema = require("../schema/leads");
 const csv = require("csv-parser");
 const { Readable } = require("stream");
+const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
 const upload = multer();
+
+const mongoURLString = process.env.DATABASE_URL;
+mongoose.connect(mongoURLString);
 
 router.post("/upload", upload.single("file"), (req, res) => {
   const file = req.file;
@@ -15,9 +19,6 @@ router.post("/upload", upload.single("file"), (req, res) => {
   if (!file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
-
-  const mongoURLString = process.env.DATABASE_URL;
-  mongoose.connect(mongoURLString);
 
   const Lead = mongoose.model("Lead", leadSchema);
 
@@ -33,6 +34,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
       .pipe(csv())
       .on("data", (data) => {
         results.push({
+          _id: uuidv4(),
           name: data["Name"],
           mobileNo: data["Mobile No"],
           email: data["Email"],
@@ -54,6 +56,7 @@ router.post("/upload", upload.single("file"), (req, res) => {
   } else if (fileExtension === "xlsx") {
     readXlsxFile(file.buffer).then((rows) => {
       const results = rows.map((row) => ({
+        _id: uuidv4(),
         name: row["Name"],
         mobileNo: row["Mobile No"],
         email: row["Email"],
@@ -77,6 +80,19 @@ router.post("/upload", upload.single("file"), (req, res) => {
       error: "Invalid file format. Only CSV and Excel files are supported.",
     });
   }
+});
+
+router.get("/getLeads", (req, res) => {
+  const Lead = mongoose.model("Lead", leadSchema);
+
+  Lead.find()
+    .then((leads) => {
+      res.json(leads);
+    })
+    .catch((error) => {
+      console.error("Failed to get leads:", error);
+      res.status(500).json({ error: "Failed to get leads" });
+    });
 });
 
 module.exports = router;

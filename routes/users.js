@@ -43,4 +43,31 @@ router.get("/getUsers", (req, res) => {
     });
 });
 
+router.put("/editUser", (req, res) => {
+  const { email, name, mobileNo, employeeCode, status, joiningDate } = req.body;
+
+  User.findOneAndUpdate(
+    { email },
+    {
+      name,
+      mobileNo,
+      employeeCode,
+      status,
+      joiningDate,
+    },
+    { new: true }
+  )
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      console.log("User updated successfully");
+      res.json(updatedUser);
+    })
+    .catch((error) => {
+      console.error("Failed to update user:", error);
+      res.status(500).json({ error: "Failed to update user" });
+    });
+});
+
 module.exports = router;
