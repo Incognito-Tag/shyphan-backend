@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  leads: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Lead",
+    },
+  ],
 });
 
 module.exports = userSchema;

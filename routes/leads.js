@@ -3,6 +3,7 @@ const multer = require("multer");
 const { readXlsxFile } = require("read-excel-file");
 const mongoose = require("mongoose");
 const leadSchema = require("../schema/leads");
+const userSchema = require("../schema/users");
 const csv = require("csv-parser");
 const { Readable } = require("stream");
 const { v4: uuidv4 } = require("uuid");
@@ -92,6 +93,35 @@ router.get("/getLeads", (req, res) => {
     .catch((error) => {
       console.error("Failed to get leads:", error);
       res.status(500).json({ error: "Failed to get leads" });
+    });
+});
+
+router.post("/saveLead", (req, res) => {
+  const { employeeCode, name, leads } = req.body;
+
+  const User = mongoose.model("User", userSchema);
+
+  User.findOne({ employeeCode })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      user.leads.push(...leads);
+
+      user
+        .save()
+        .then(() => {
+          res.json({ message: "Leads saved to the user successfully" });
+        })
+        .catch((error) => {
+          console.error("Failed to save leads to the user:", error);
+          res.status(500).json({ error: "Failed to save leads to the user" });
+        });
+    })
+    .catch((error) => {
+      console.error("Failed to find the user:", error);
+      res.status(500).json({ error: "Failed to find the user" });
     });
 });
 
