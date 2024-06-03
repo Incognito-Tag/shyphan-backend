@@ -12,10 +12,7 @@ const router = express.Router();
 const upload = multer();
 
 const mongoURLString = process.env.DATABASE_URL;
-mongoose.connect(mongoURLString, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(mongoURLString);
 
 const Lead = mongoose.model("Lead", leadSchema);
 const User = mongoose.model("User", userSchema);
@@ -83,7 +80,7 @@ router.post("/assignLeadsToUser", async (req, res) => {
 
     user.leads.push(...leads);
     await user.save();
-    
+
     await Lead.updateMany({ _id: { $in: leads } }, { assignedTo: employeeId });
     await Lead.save();
     res.json({ message: "Leads saved to the user successfully" });

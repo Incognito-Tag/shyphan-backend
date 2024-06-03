@@ -4,10 +4,7 @@ const mongoose = require("mongoose");
 const userSchema = require("../schema/users");
 
 const mongoURLString = process.env.DATABASE_URL;
-mongoose.connect(mongoURLString, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(mongoURLString);
 
 const User = mongoose.model("User", userSchema);
 
