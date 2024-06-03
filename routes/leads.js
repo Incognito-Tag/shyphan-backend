@@ -72,7 +72,7 @@ router.post("/assignLeadsToUser", async (req, res) => {
   const { employeeId, leads } = req.body;
 
   try {
-    const user = await User.findOne({ employeeId });
+    const user = await User.findOne({ employeeCode: employeeId });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -85,7 +85,6 @@ router.post("/assignLeadsToUser", async (req, res) => {
       { _id: { $in: leads } },
       { assignedTo: employeeId, assignedAt: new Date() }
     );
-    
 
     res.json({ message: "Leads saved to the user successfully" });
   } catch (error) {
