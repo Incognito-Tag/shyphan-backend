@@ -81,8 +81,12 @@ router.post("/assignLeadsToUser", async (req, res) => {
     user.leads.push(...leads);
     await user.save();
 
-    await Lead.updateMany({ _id: { $in: leads } }, { assignedTo: employeeId });
-    await Lead.save();
+    Lead.updateMany(
+      { _id: { $in: leads } },
+      { assignedTo: employeeId, assignedAt: new Date() }
+    );
+    
+
     res.json({ message: "Leads saved to the user successfully" });
   } catch (error) {
     console.error("Failed to save leads to the user:", error);

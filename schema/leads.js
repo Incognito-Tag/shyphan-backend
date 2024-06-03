@@ -8,13 +8,20 @@ const leadSchema = new mongoose.Schema({
   mobileNo: {
     type: String,
     required: true,
-    unique: true, 
+    unique: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true, 
+    unique: true,
     lowercase: true,
+  },
+
+  assignedTo: {
+    type: String,
+  },
+  assignedAt: {
+    type: Date,
   },
 
   propertyType: {
