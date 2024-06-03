@@ -51,13 +51,23 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-router.get("/getLeads", async (req, res) => {
+router.get("/getAllLeads", async (req, res) => {
   try {
     const leads = await Lead.find();
     res.json(leads);
   } catch (error) {
     console.error("Failed to get leads:", error);
     res.status(500).json({ error: "Failed to get leads" });
+  }
+});
+
+router.get("/getUnassignedLeads", async (req, res) => {
+  try {
+    const leads = await Lead.find({ assignedTo: { $exists: false } });
+    res.json(leads);
+  } catch (error) {
+    console.error("Failed to get unassigned leads:", error);
+    res.status(500).json({ error: "Failed to get unassigned leads" });
   }
 });
 
@@ -72,8 +82,10 @@ router.post("/assignLeadsToUser", async (req, res) => {
     }
 
     user.leads.push(...leads);
-
     await user.save();
+    
+    await Lead.updateMany({ _id: { $in: leads } }, { assignedTo: employeeId });
+    await Lead.save();
     res.json({ message: "Leads saved to the user successfully" });
   } catch (error) {
     console.error("Failed to save leads to the user:", error);
