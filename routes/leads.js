@@ -12,25 +12,82 @@ const router = express.Router();
 const upload = multer();
 
 const mongoURLString = process.env.DATABASE_URL;
-mongoose.connect(mongoURLString);
+mongoose.connect(mongoURLString, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-router.post("/upload", upload.single("file"), (req, res) => {
+const Lead = mongoose.model("Lead", leadSchema);
+const User = mongoose.model("User", userSchema);
+
+router.post("/upload", upload.single("file"), async (req, res) => {
   const file = req.file;
 
   if (!file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
 
-  const Lead = mongoose.model("Lead", leadSchema);
-
   const fileExtension = file.originalname.split(".").pop().toLowerCase();
 
-  if (fileExtension === "csv") {
-    const results = [];
-    const stream = new Readable();
-    stream.push(file.buffer);
-    stream.push(null);
+  try {
+    let results;
 
+    if (fileExtension === "csv") {
+      results = await parseCsvFile(file.buffer);
+    } else if (fileExtension === "xlsx") {
+      results = await parseXlsxFile(file.buffer);
+    } else {
+      return res.status(400).json({
+        error: "Invalid file format. Only CSV and Excel files are supported.",
+      });
+    }
+
+    await Lead.insertMany(results);
+    console.log("Leads saved successfully");
+    return res.json(results);
+  } catch (error) {
+    console.error("Failed to save leads:", error);
+    return res.status(500).json({ error: "Failed to save leads" });
+  }
+});
+
+router.get("/getLeads", async (req, res) => {
+  try {
+    const leads = await Lead.find();
+    res.json(leads);
+  } catch (error) {
+    console.error("Failed to get leads:", error);
+    res.status(500).json({ error: "Failed to get leads" });
+  }
+});
+
+router.post("/assignLeadsToUser", async (req, res) => {
+  const { employeeId, leads } = req.body;
+
+  try {
+    const user = await User.findOne({ employeeId });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.leads.push(...leads);
+
+    await user.save();
+    res.json({ message: "Leads saved to the user successfully" });
+  } catch (error) {
+    console.error("Failed to save leads to the user:", error);
+    res.status(500).json({ error: "Failed to save leads to the user" });
+  }
+});
+
+async function parseCsvFile(buffer) {
+  const results = [];
+  const stream = new Readable();
+  stream.push(buffer);
+  stream.push(null);
+
+  return new Promise((resolve, reject) => {
     stream
       .pipe(csv())
       .on("data", (data) => {
@@ -44,85 +101,24 @@ router.post("/upload", upload.single("file"), (req, res) => {
         });
       })
       .on("end", () => {
-        Lead.insertMany(results)
-          .then(() => {
-            console.log("Leads saved successfully");
-          })
-          .catch((error) => {
-            console.error("Failed to save leads:", error);
-          });
-
-        return res.json(results);
+        resolve(results);
+      })
+      .on("error", (error) => {
+        reject(error);
       });
-  } else if (fileExtension === "xlsx") {
-    readXlsxFile(file.buffer).then((rows) => {
-      const results = rows.map((row) => ({
-        _id: uuidv4(),
-        name: row["Name"],
-        mobileNo: row["Mobile No"],
-        email: row["Email"],
-        propertyType: row["Property Type"],
-        leadSource: row["Lead Source"],
-      }));
+  });
+}
 
-      const Lead = mongoose.model("Lead", leadSchema);
-      Lead.insertMany(results)
-        .then(() => {
-          console.log("Leads saved successfully");
-        })
-        .catch((error) => {
-          console.error("Failed to save leads:", error);
-        });
-
-      return res.json(results);
-    });
-  } else {
-    return res.status(400).json({
-      error: "Invalid file format. Only CSV and Excel files are supported.",
-    });
-  }
-});
-
-router.get("/getLeads", (req, res) => {
-  const Lead = mongoose.model("Lead", leadSchema);
-
-  Lead.find()
-    .then((leads) => {
-      res.json(leads);
-    })
-    .catch((error) => {
-      console.error("Failed to get leads:", error);
-      res.status(500).json({ error: "Failed to get leads" });
-    });
-});
-
-router.post("/saveLead", (req, res) => {
-  const { employeeCode, name, leads } = req.body;
-
-  const User = mongoose.model("User", userSchema);
-
-  User.findOne({ employeeCode })
-    .then((user) => {
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      user.leads.push(...leads);
-
-      user
-        .save()
-        .then(() => {
-          res.json({ message: "Leads saved to the user successfully" });
-        })
-        .catch((error) => {
-          console.error("Failed to save leads to the user:", error);
-          res.status(500).json({ error: "Failed to save leads to the user" });
-        });
-    })
-    .catch((error) => {
-      console.error("Failed to find the user:", error);
-      res.status(500).json({ error: "Failed to find the user" });
-    });
-});
+async function parseXlsxFile(buffer) {
+  const rows = await readXlsxFile(buffer);
+  return rows.map((row) => ({
+    _id: uuidv4(),
+    name: row[0],
+    mobileNo: row[1],
+    email: row[2],
+    propertyType: row[3],
+    leadSource: row[4],
+  }));
+}
 
 module.exports = router;
