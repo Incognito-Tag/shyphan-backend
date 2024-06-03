@@ -72,7 +72,7 @@ router.post("/assignLeadsToUser", async (req, res) => {
   const { employeeId, leads } = req.body;
 
   try {
-    const user = await User.findOne({ employeeCode: employeeId });
+    const user = await User.findOne({ employeeId });
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });

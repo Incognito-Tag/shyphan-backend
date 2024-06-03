@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  employeeCode: {
+  employeeId: {
     type: String,
     unique: true,
   },

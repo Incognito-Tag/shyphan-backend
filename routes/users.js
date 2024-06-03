@@ -10,14 +10,14 @@ const User = mongoose.model("User", userSchema);
 
 router.post("/addUser", async (req, res) => {
   try {
-    const { name, mobileNo, email, employeeCode, status, joiningDate } =
+    const { name, mobileNo, email, employeeId, status, joiningDate } =
       req.body;
 
     const user = new User({
       name,
       mobileNo,
       email,
-      employeeCode,
+      employeeId,
       status,
       joiningDate,
     });
@@ -44,14 +44,14 @@ router.get("/getUsers", async (req, res) => {
 router.put("/editUser/:email", async (req, res) => {
   try {
     const { email } = req.params;
-    const { name, mobileNo, employeeCode, status, joiningDate } = req.body;
+    const { name, mobileNo, employeeId, status, joiningDate } = req.body;
 
     const updatedUser = await User.findOneAndUpdate(
       { email },
       {
         name,
         mobileNo,
-        employeeCode,
+        employeeId,
         status,
         joiningDate,
       },

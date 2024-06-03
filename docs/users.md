@@ -15,7 +15,7 @@ Add a new user to the database.
 - `name` (string, required): The name of the user.
 - `mobileNo` (string, required): The mobile number of the user.
 - `email` (string, required): The email address of the user.
-- `employeeCode` (string): The employee code of the user.
+- `employeeId` (string): The employee code of the user.
 - `isActive` (boolean, default: true): Indicates whether the user is active or not.
 
 ### Responses
@@ -27,7 +27,7 @@ Add a new user to the database.
       "name": "John Doe",
       "mobileNo": "1234567890",
       "email": "john@example.com",
-      "employeeCode": "EMP001",
+      "employeeId": "EMP001",
       "isActive": true
     }
     ```
@@ -61,7 +61,7 @@ Get all users from the database.
         "name": "John Doe",
         "mobileNo": "1234567890",
         "email": "john@example.com",
-        "employeeCode": "EMP001",
+        "employeeId": "EMP001",
         "isActive": true
       },
       {
@@ -69,7 +69,7 @@ Get all users from the database.
         "name": "Jane Smith",
         "mobileNo": "9876543210",
         "email": "jane@example.com",
-        "employeeCode": "EMP002",
+        "employeeId": "EMP002",
         "isActive": false
       },
       ...
@@ -90,5 +90,5 @@ Get all users from the database.
 - `name` (string, required): The name of the user.
 - `mobileNo` (string, required, unique): The mobile number of the user.
 - `email` (string, required, unique, lowercase): The email address of the user.
-- `employeeCode` (string, unique): The employee code of the user.
+- `employeeId` (string, unique): The employee code of the user.
 - `isActive` (boolean, default: true): Indicates whether the user is active or not.
