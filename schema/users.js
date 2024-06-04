@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
+  employeeType: {
+    type: String,
+    required: true
+  },
   employeeId: {
     type: String,
     unique: true,

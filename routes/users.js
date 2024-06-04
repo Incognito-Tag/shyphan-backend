@@ -10,15 +10,14 @@ const User = mongoose.model("User", userSchema);
 
 router.post("/addUser", async (req, res) => {
   try {
-    const { name, mobileNo, email, employeeId, status, joiningDate } =
+    const { name, mobileNo, email, employeeType, employeeId, joiningDate } =
       req.body;
-
     const user = new User({
       name,
       mobileNo,
       email,
       employeeId,
-      status,
+      employeeType,
       joiningDate,
     });
 
