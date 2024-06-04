@@ -71,9 +71,10 @@ router.get("/getUnassignedLeads", async (req, res) => {
 router.post("/getAvaibleLeadsForDates", async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
+    const endDatePlusOneDay = new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000);
     const leads = await Lead.find({
       assignedTo: { $exists: false },
-      createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      createdAt: { $gte: new Date(startDate), $lte: endDatePlusOneDay },
     });
     res.json(leads);
   } catch (error) {
