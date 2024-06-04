@@ -68,17 +68,31 @@ router.get("/getUnassignedLeads", async (req, res) => {
   }
 });
 
-router.post("/getAvaibleLeadsForDates", async (req, res) => {
+router.post("/getAvailableLeadsForDates", async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
     const endDatePlusOneDay = new Date(
       new Date(endDate).getTime() + 2 * 24 * 60 * 60 * 1000 - 1
     );
-    const leads = await Lead.find({
+    const leadsCount = await Lead.countDocuments({
       assignedTo: { $exists: false },
       createdAt: { $gte: new Date(startDate), $lte: endDatePlusOneDay },
     });
-    res.json(leads);
+    const brokerCount = await User.countDocuments({
+      employeeType: { $in: ["broker"] },
+    });
+    const telecallerCount = await User.countDocuments({
+      employeeType: { $in: ["telecaller"] },
+    });
+    const employeeCount = await User.countDocuments({
+      employeeType: { $in: ["employee"] },
+    });
+    res.json({
+      unassignedLead: leadsCount,
+      brokerCount: brokerCount,
+      telecallerCount: telecallerCount,
+      employeeCount: employeeCount,
+    });
   } catch (error) {
     console.error("Failed to get unassigned leads:", error);
     res.status(500).json({ error: "Failed to get unassigned leads" });
