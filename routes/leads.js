@@ -68,7 +68,7 @@ router.get("/getUnassignedLeads", async (req, res) => {
   }
 });
 
-router.get("/getAvaibleLeadsForDates", async (req, res) => {
+router.post("/getAvaibleLeadsForDates", async (req, res) => {
   try {
     const { startDate, endDate } = req.body;
     const leads = await Lead.find({
