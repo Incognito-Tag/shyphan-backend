@@ -68,6 +68,20 @@ router.get("/getUnassignedLeads", async (req, res) => {
   }
 });
 
+router.get("/getAvaibleLeadsForDates", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.body;
+    const leads = await Lead.find({
+      assignedTo: { $exists: false },
+      createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    });
+    res.json(leads);
+  } catch (error) {
+    console.error("Failed to get unassigned leads:", error);
+    res.status(500).json({ error: "Failed to get unassigned leads" });
+  }
+});
+
 router.post("/assignLeadsToUser", async (req, res) => {
   const { employeeId, leads } = req.body;
 
@@ -104,7 +118,6 @@ async function parseCsvFile(buffer) {
       .pipe(csv())
       .on("data", (data) => {
         results.push({
-          _id: uuidv4(),
           name: data["Name"],
           mobileNo: data["Mobile No"],
           email: data["Email"],
@@ -124,7 +137,6 @@ async function parseCsvFile(buffer) {
 async function parseXlsxFile(buffer) {
   const rows = await readXlsxFile(buffer);
   return rows.map((row) => ({
-    _id: uuidv4(),
     name: row[0],
     mobileNo: row[1],
     email: row[2],

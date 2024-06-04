@@ -16,17 +16,14 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
   },
-  employeeType: {
-    type: String,
-    required: true
-  },
   employeeId: {
     type: String,
     unique: true,
   },
-  status: {
+  employeeType: {
     type: String,
-    enum: ["active", "inactive", "suspended"],
+    enum: ["admin", "telecaller", "employee", "broker"],
+    required: true,
     default: "active",
   },
   joiningDate: {
