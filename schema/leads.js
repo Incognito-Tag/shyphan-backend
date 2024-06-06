@@ -31,6 +31,35 @@ const leadSchema = new mongoose.Schema({
     type: String,
   },
 
+  location: {
+    type: String,
+  },
+  followup: {
+    type: String,
+  },
+  project: {
+    type: String,
+  },
+  followupType: {
+    type: String,
+  },
+
+  timeline: [
+    {
+      action: {
+        type: String,
+        required: true,
+      },
+      description: {
+        type: String,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+
   createdAt: {
     type: Date,
     default: Date.now,

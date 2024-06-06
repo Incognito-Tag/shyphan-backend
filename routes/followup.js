@@ -1,9 +1,10 @@
 const express = require("express");
-const router = express.Router();
+const multer = require("multer");
 const mongoose = require("mongoose");
-
 const leadSchema = require("../schema/leads");
 const userSchema = require("../schema/users");
+
+const router = express.Router();
 
 const mongoURLString = process.env.DATABASE_URL;
 mongoose.connect(mongoURLString);
@@ -34,6 +35,57 @@ router.get("/countLeadsFollowup", async (req, res) => {
   } catch (error) {
     console.error("Failed to get counts:", error);
     res.status(500).json({ error: "Failed to get counts" });
+  }
+});
+
+router.put("/editAssignedLead/:leadId", async (req, res) => {
+  const { leadId } = req.params;
+  const { location, followup, project, followupType } = req.body;
+
+  try {
+    const lead = await Lead.findById(leadId);
+
+    if (!lead) {
+      return res.status(404).json({ error: "Lead not found" });
+    }
+
+    lead.location = location || lead.location;
+    lead.followup = followup || lead.followup;
+    lead.project = project || lead.project;
+    lead.followupType = followupType || lead.followupType;
+
+    await lead.save();
+
+    res.json({ message: "Lead information updated successfully" });
+  } catch (error) {
+    console.error("Failed to update lead information:", error);
+    res.status(500).json({ error: "Failed to update lead information" });
+  }
+});
+
+router.post("/storeUserAction/:leadId", async (req, res) => {
+  const { leadId } = req.params;
+  const { action, description } = req.body;
+
+  try {
+    const lead = await Lead.findById(leadId);
+
+    if (!lead) {
+      return res.status(404).json({ error: "Lead not found" });
+    }
+
+    lead.timeline.push({
+      action,
+      description,
+      timestamp: new Date(),
+    });
+
+    await lead.save();
+
+    res.json({ message: "User action stored successfully" });
+  } catch (error) {
+    console.error("Failed to store user action:", error);
+    res.status(500).json({ error: "Failed to store user action" });
   }
 });
 
