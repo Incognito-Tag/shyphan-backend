@@ -6,7 +6,6 @@ const leadSchema = require("../schema/leads");
 const userSchema = require("../schema/users");
 const csv = require("csv-parser");
 const { Readable } = require("stream");
-const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
 const upload = multer();

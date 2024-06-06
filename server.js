@@ -31,9 +31,9 @@ router.get("/", function (req, res, next) {
 });
 app.use(router);
 
-app.use("/api/leads", apiLeads);
-app.use("/api/users", apiUsers);
-app.use("/api/followup", apiFollowup);
+app.use("/leads", apiLeads);
+app.use("/users", apiUsers);
+app.use("/followup", apiFollowup);
 
 app.listen(PORT, () => {
   console.log(`Server Started at ${PORT}`);

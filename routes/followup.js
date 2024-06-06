@@ -1,5 +1,4 @@
 const express = require("express");
-const multer = require("multer");
 const mongoose = require("mongoose");
 const leadSchema = require("../schema/leads");
 const userSchema = require("../schema/users");
@@ -38,9 +37,8 @@ router.get("/countLeadsFollowup", async (req, res) => {
   }
 });
 
-router.post("/editAssignedLead/:leadId", async (req, res) => {
-  const { leadId } = req.params;
-  const { location, followup, project, followupType } = req.body;
+router.post("/editAssignedLead", async (req, res) => {
+  const { leadId, location, followup, project, followupType } = req.body;
 
   try {
     const lead = await Lead.findById(leadId);
@@ -63,9 +61,8 @@ router.post("/editAssignedLead/:leadId", async (req, res) => {
   }
 });
 
-router.post("/storeUserAction/:leadId", async (req, res) => {
-  const { leadId } = req.params;
-  const { action, description } = req.body;
+router.post("/storeUserAction", async (req, res) => {
+  const { leadId, action, description } = req.body;
 
   try {
     const lead = await Lead.findById(leadId);
