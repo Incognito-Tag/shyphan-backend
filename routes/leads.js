@@ -99,6 +99,61 @@ router.post("/getAvailableLeadsForDates", async (req, res) => {
   }
 });
 
+router.post("/assignLeadsByUserType", async (req, res) => {
+  const { userType, startDate, endDate, userCount } = req.body;
+
+  try {
+    const users = await User.find({ employeeType: userType }).limit(userCount);
+
+    if (users.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No users found for the specified user type" });
+    }
+
+    const endDatePlusOneDay = new Date(
+      new Date(endDate).getTime() + 2 * 24 * 60 * 60 * 1000 - 1
+    );
+    const leads = await Lead.find({
+      assignedTo: { $exists: false },
+      createdAt: { $gte: new Date(startDate), $lte: endDatePlusOneDay },
+    });
+
+    if (leads.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No leads available for the specified date range" });
+    }
+
+    const leadsPerUser = Math.floor(leads.length / users.length);
+    const remainingLeads = leads.length % users.length;
+
+    for (let i = 0; i < users.length; i++) {
+      const user = users[i];
+      const startIndex = i * leadsPerUser;
+      const endIndex = (i + 1) * leadsPerUser;
+      const userLeads = leads.slice(startIndex, endIndex);
+
+      if (i === users.length - 1) {
+        userLeads.push(...leads.slice(endIndex, endIndex + remainingLeads));
+      }
+
+      user.leads.push(...userLeads);
+      await user.save();
+
+      await Lead.updateMany(
+        { _id: { $in: userLeads.map((lead) => lead._id) } },
+        { assignedTo: user.employeeId, assignedAt: new Date() }
+      );
+    }
+
+    res.json({ message: "Leads assigned to users successfully" });
+  } catch (error) {
+    console.error("Failed to assign leads to users:", error);
+    res.status(500).json({ error: "Failed to assign leads to users" });
+  }
+});
+
 router.post("/assignLeadsToUser", async (req, res) => {
   const { employeeId, leads } = req.body;
 
