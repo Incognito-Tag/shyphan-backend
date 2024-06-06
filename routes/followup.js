@@ -38,7 +38,7 @@ router.get("/countLeadsFollowup", async (req, res) => {
   }
 });
 
-router.put("/editAssignedLead/:leadId", async (req, res) => {
+router.post("/editAssignedLead/:leadId", async (req, res) => {
   const { leadId } = req.params;
   const { location, followup, project, followupType } = req.body;
 
