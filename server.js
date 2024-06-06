@@ -7,6 +7,7 @@ const cors = require("cors");
 const apiLeads = require("./routes/leads");
 const apiUsers = require("./routes/users");
 const apiFollowup = require("./routes/followup");
+const apiAuth = require("./routes/auth");
 
 const PORT = process.env.PORT;
 const mongoURLString = process.env.DATABASE_URL;
@@ -34,6 +35,7 @@ app.use(router);
 app.use("/leads", apiLeads);
 app.use("/users", apiUsers);
 app.use("/followup", apiFollowup);
+app.use("/auth", apiAuth);
 
 app.listen(PORT, () => {
   console.log(`Server Started at ${PORT}`);

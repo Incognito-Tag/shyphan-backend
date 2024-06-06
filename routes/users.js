@@ -10,15 +10,16 @@ const User = mongoose.model("User", userSchema);
 
 router.post("/addUser", async (req, res) => {
   try {
-    const { name, mobileNo, email, employeeType, employeeId, joiningDate } =
+    const { name, password, mobileNo, email, employeeType, employeeId } =
       req.body;
     const user = new User({
       name,
+      password: password,
       mobileNo,
       email,
       employeeId,
       employeeType,
-      joiningDate,
+      joiningDate: new Date(),
     });
 
     const savedUser = await user.save();
