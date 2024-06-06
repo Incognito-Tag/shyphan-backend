@@ -12,6 +12,9 @@ router.post("/addUser", async (req, res) => {
   try {
     const { name, password, mobileNo, email, employeeType, employeeId } =
       req.body;
+    if (employeeType === "admin") {
+      throw new Error("Employee type cannot be 'admin'");
+    }
     const user = new User({
       name,
       password: password,
