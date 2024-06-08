@@ -98,30 +98,24 @@ router.post("/getAvailableLeadsForDates", async (req, res) => {
   }
 });
 
-router.post("/assignLeadsByUserType", async (req, res) => {
-  const { userType, startDate, endDate, userCount } = req.body;
+router.post("/assignLeadsByUserIds", async (req, res) => {
+  const { userIds, startDate, endDate } = req.body;
 
   try {
-    const users = await User.find({ employeeType: userType }).limit(userCount);
+    const users = await User.find({ employeeId: { $in: userIds } });
 
     if (users.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No users found for the specified user type" });
+      return res.status(404).json({ error: "No users found for the specified user IDs" });
     }
 
-    const endDatePlusOneDay = new Date(
-      new Date(endDate).getTime() + 2 * 24 * 60 * 60 * 1000 - 1
-    );
+    const endDatePlusOneDay = new Date(new Date(endDate).getTime() + 2 * 24 * 60 * 60 * 1000 - 1);
     const leads = await Lead.find({
       assignedTo: { $exists: false },
       createdAt: { $gte: new Date(startDate), $lte: endDatePlusOneDay },
     });
 
     if (leads.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No leads available for the specified date range" });
+      return res.status(404).json({ error: "No leads available for the specified date range" });
     }
 
     const leadsPerUser = Math.floor(leads.length / users.length);
