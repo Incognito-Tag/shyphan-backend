@@ -30,7 +30,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, secretKey);
 
-    res.json({ token });
+    res.json({ token, employeeType: user.employeeType });
   } catch (error) {
     console.error("Failed to login:", error);
     res.status(500).json({ error: "Failed to login" });
@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/getDetails", async (req, res) => {
   const { token } = req.body;
-
+  console.log(token);
   try {
     const decodedToken = jwt.verify(token, secretKey);
     const userId = decodedToken.userId;

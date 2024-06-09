@@ -27,10 +27,10 @@ router.post("/addUser", async (req, res) => {
 
     const savedUser = await user.save();
     console.log("User saved successfully");
-    res.status(201).json(savedUser);
+    res.status(200).json(savedUser);
   } catch (error) {
     console.error("Failed to save user:", error);
-    res.status(500).json({ error: "Failed to add user" });
+    res.status(401).json({ error: "Failed to add user" });
   }
 });
 

@@ -100,9 +100,9 @@ router.post("/getAvailableLeadsForDates", async (req, res) => {
 
 router.post("/assignLeadsByUserIds", async (req, res) => {
   const { userIds, startDate, endDate } = req.body;
-
+  console.log(userIds);
   try {
-    const users = await User.find({ employeeId: { $in: userIds } });
+    const users = await User.find({ _id: { $in: userIds } });
 
     if (users.length === 0) {
       return res.status(404).json({ error: "No users found for the specified user IDs" });
